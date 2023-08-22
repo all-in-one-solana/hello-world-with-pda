@@ -40,16 +40,16 @@ async function main() {
 
   console.log("authority: ", authority.toBase58());
 
-  // const tx = await program.methods.initialize("Hello World!").accounts({
-  //   helloWorld,
-  //   authority,
-  //   systemProgram: anchor.web3.SystemProgram.programId,
-  // }).rpc();
+  const tx = await program.methods.initialize("Hello World!").accounts({
+    helloWorld,
+    authority,
+    systemProgram: anchor.web3.SystemProgram.programId,
+  }).rpc();
 
-  // console.log("tx signature: ", tx);
-  // console.log(
-  // `Transaction https://solana.fm/tx/${tx}?cluster=custom`
-  // )
+  console.log("tx signature: ", tx);
+  console.log(
+    `Transaction https://solana.fm/tx/${tx}?cluster=custom`
+  )
   // Fetch the state struct from the network.
   const accountState = await program.account.helloWorld.fetch(helloWorld);
   console.log("account state: ", accountState);
