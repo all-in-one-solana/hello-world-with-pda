@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import * as toml from "toml";
 const web3 = require('@solana/web3.js');
 const { Transaction, TransactionInstruction } = web3;
+import * as bs58 from 'bs58';
 
 dotenv.config();
 
@@ -63,8 +64,12 @@ async function main() {
   }).rpc();
   console.log("tx signature: ", tx2);
 
+  // Fetch the state struct from the network.
+  const accountState2 = await program.account.helloWorld.fetch(helloWorld);
+  console.log("account state: ", accountState2);
 
-  const tx3 = await program.methods.update("Davirain ❤️ Solana 🌹").accounts({
+
+  const tx3 = await program.methods.update("Davirain ❤️ Solana --> 🌹").accounts({
     helloWorld,
   }).instruction();
 
@@ -90,17 +95,38 @@ async function main() {
   console.log("   ✅ - Compiled Transaction Message");
   const transaction = new anchor.web3.VersionedTransaction(messageV0);
 
-  // const encodedTransaction = transaction.serialize().toString();
-  const encodedTransaction = Buffer.from(transaction.serialize()).toString('base64');
-  console.log("encodedTransaction: ", encodedTransaction);
+  // Step 3 - Sign your transaction with the required `Signers`
+  provider.wallet.signTransaction(transaction);
+  console.log("   ✅ - Transaction Signed");
 
-  console.log("tx3: ", tx3);
+  // Step 4 - Send our v0 transaction to the cluster
+  const txid = await provider.connection.sendTransaction(transaction, {
+    maxRetries: 5,
+  });
+  console.log("   ✅ - Transaction sent to network");
+
+  // Step 5 - Confirm Transaction
+  const confirmation = await provider.connection.confirmTransaction({
+    signature: txid,
+    blockhash: latestBlockhash.blockhash,
+    lastValidBlockHeight: latestBlockhash.lastValidBlockHeight,
+  });
+  if (confirmation.value.err) {
+    throw new Error(
+      `   ❌ - Transaction not confirmed.\nReason: ${confirmation.value.err}`
+    );
+  }
+
+  console.log("🎉 Transaction Succesfully Confirmed!");
+  let result = await program.account.helloWorld.fetch(helloWorld);
+  console.log("Robot action state details: ", result);
 
 
+  // const encodedSimulationTransaction = Buffer.from(transaction.serialize()).toString('base64');
+  // console.log("encodedTransaction: ", encodedSimulationTransaction);
 
-  // Fetch the state struct from the network.
-  const accountState2 = await program.account.helloWorld.fetch(helloWorld);
-  console.log("account state: ", accountState2);
+  // const encodedTransactionBase58 = bs58.encode(Buffer.from(transaction.serialize()));
+  // console.log("encodedTransactionBase58: ", encodedTransactionBase58);
 }
 
 main()
