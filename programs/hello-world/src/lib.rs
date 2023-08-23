@@ -41,11 +41,7 @@ pub struct Initialize<'info> {
 
 #[derive(Accounts)]
 pub struct UpdateHelloWorld<'info> {
-    #[account(
-            mut,
-            seeds = [b"hello-world"],
-            bump
-    )]
+    #[account(mut,has_one = authority)]
     pub hello_world: Account<'info, HelloWorld>,
     #[account(mut)]
     pub authority: Signer<'info>,
