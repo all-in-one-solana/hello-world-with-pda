@@ -8,7 +8,7 @@ hello_world = "37inJ1tG9kaoxmSZZUUAcV3t6QBW4PugWmCXR5cTMaP3"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "https://api.devnet.solana.com"
 wallet = "/Users/davirain/.config/solana/id.json"
 
 [scripts]
